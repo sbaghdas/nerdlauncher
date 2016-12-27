@@ -27,19 +27,29 @@ public class NerdLauncherFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private List<ResolveInfo> mActivities;
 
-    private class ActivityHolder extends RecyclerView.ViewHolder {
+    private class ActivityHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         private ResolveInfo mResolveInfo;
         private TextView mTextView;
 
         public ActivityHolder(View view) {
             super(view);
             mTextView = (TextView)view;
+            mTextView.setOnClickListener(this);
         }
 
         public void bindActivity(ResolveInfo activity) {
             mResolveInfo = activity;
             PackageManager pm = getActivity().getPackageManager();
             mTextView.setText(mResolveInfo.loadLabel(pm));
+        }
+
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(Intent.ACTION_MAIN).
+                    setClassName(mResolveInfo.activityInfo.packageName,
+                            mResolveInfo.activityInfo.name);
+            startActivity(intent);
         }
     }
 

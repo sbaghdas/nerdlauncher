@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Collection;
@@ -31,17 +32,20 @@ public class NerdLauncherFragment extends Fragment {
             implements View.OnClickListener {
         private ResolveInfo mResolveInfo;
         private TextView mTextView;
+        private ImageView mImageView;
 
         public ActivityHolder(View view) {
             super(view);
-            mTextView = (TextView)view;
+            mTextView = (TextView)view.findViewById(R.id.list_item_app_title);
             mTextView.setOnClickListener(this);
+            mImageView = (ImageView)view.findViewById(R.id.list_item_app_icon);
         }
 
         public void bindActivity(ResolveInfo activity) {
             mResolveInfo = activity;
             PackageManager pm = getActivity().getPackageManager();
             mTextView.setText(mResolveInfo.loadLabel(pm));
+            mImageView.setImageDrawable(mResolveInfo.loadIcon(pm));
         }
 
         @Override
@@ -86,7 +90,7 @@ public class NerdLauncherFragment extends Fragment {
             @Override
             public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 LayoutInflater inflater = LayoutInflater.from(getActivity());
-                View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                View view = inflater.inflate(R.layout.list_item_fragment, parent, false);
                 return new ActivityHolder(view);
             }
 

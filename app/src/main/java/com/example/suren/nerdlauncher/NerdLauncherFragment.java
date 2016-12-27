@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -22,7 +23,25 @@ import java.util.List;
 
 public class NerdLauncherFragment extends Fragment {
     private final static String LOG_TAG = NerdLauncherFragment.class.getSimpleName();
+
     private RecyclerView mRecyclerView;
+    private List<ResolveInfo> mActivities;
+
+    private class ActivityHolder extends RecyclerView.ViewHolder {
+        private ResolveInfo mResolveInfo;
+        private TextView mTextView;
+
+        public ActivityHolder(View view) {
+            super(view);
+            mTextView = (TextView)view;
+        }
+
+        public void bindActivity(ResolveInfo activity) {
+            mResolveInfo = activity;
+            PackageManager pm = getActivity().getPackageManager();
+            mTextView.setText(mResolveInfo.loadLabel(pm));
+        }
+    }
 
     public NerdLauncherFragment() {
     }
@@ -41,8 +60,8 @@ public class NerdLauncherFragment extends Fragment {
         Intent startIntent = new Intent(Intent.ACTION_MAIN);
         startIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         PackageManager pm = getActivity().getPackageManager();
-        List<ResolveInfo> activities = pm.queryIntentActivities(startIntent, 0);
-        Collections.sort(activities, new Comparator<ResolveInfo>() {
+        mActivities = pm.queryIntentActivities(startIntent, 0);
+        Collections.sort(mActivities, new Comparator<ResolveInfo>() {
             @Override
             public int compare(ResolveInfo r1, ResolveInfo r2) {
                 PackageManager pm = getActivity().getPackageManager();
@@ -51,6 +70,24 @@ public class NerdLauncherFragment extends Fragment {
                 return label1.compareTo(label2);
             }
         });
-        Log.i(LOG_TAG, "Number of activities found: " + activities.size());
+        Log.i(LOG_TAG, "Number of activities found: " + mActivities.size());
+        mRecyclerView.setAdapter(new RecyclerView.Adapter() {
+            @Override
+            public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+                LayoutInflater inflater = LayoutInflater.from(getActivity());
+                View view = inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+                return new ActivityHolder(view);
+            }
+
+            @Override
+            public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+                ((ActivityHolder)holder).bindActivity(mActivities.get(position));
+            }
+
+            @Override
+            public int getItemCount() {
+                return mActivities.size();
+            }
+        });
     }
 }
